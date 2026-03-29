@@ -47,7 +47,12 @@
         </VBox>
         <VBox spacing="10.0" styleClass="surface-panel">
             <children>
-                <Label styleClass="section-title" text="Billing history" />
+                <HBox spacing="12.0" styleClass="action-bar">
+                    <children>
+                        <Label styleClass="section-title" text="Billing history" />
+                        <Label fx:id="revenueEarnedLabel" styleClass="helper-text" text="Revenue Earned: 0.00" />
+                    </children>
+                </HBox>
                 <TableView fx:id="billTable" prefHeight="360.0">
                     <columns>
                         <TableColumn fx:id="billIdColumn" prefWidth="80.0" text="Bill ID" />

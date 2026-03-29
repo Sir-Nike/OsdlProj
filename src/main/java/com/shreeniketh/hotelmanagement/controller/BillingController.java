@@ -59,6 +59,8 @@ public class BillingController {
     private TableColumn<Bill, Double> billTotalColumn;
     @FXML
     private TableColumn<Bill, String> billCreatedAtColumn;
+    @FXML
+    private Label revenueEarnedLabel;
 
     private final HotelService service = new HotelService();
 
@@ -84,6 +86,7 @@ public class BillingController {
         refreshCustomers();
         refreshBills();
         updateActionStates();
+        updateRevenueEarned();
     }
 
     @FXML
@@ -110,6 +113,7 @@ public class BillingController {
     @FXML
     private void refreshBills() {
         billTable.setItems(FXCollections.observableArrayList(service.listBills()));
+        updateRevenueEarned();
     }
 
     private void showBillWindow(Bill bill) {
@@ -161,6 +165,17 @@ public class BillingController {
             boolean canGenerateBill = selectedCustomer != null && selectedCustomer.getCheckedIn() && !selectedCustomer.getCheckedOut();
             generateBillButton.setDisable(!canGenerateBill);
         }
+    }
+
+    private void updateRevenueEarned() {
+        if (revenueEarnedLabel == null) {
+            return;
+        }
+
+        double totalRevenue = service.listBills().stream()
+                .mapToDouble(Bill::getTotalAmount)
+                .sum();
+        revenueEarnedLabel.setText(String.format("Revenue Earned: %.2f", totalRevenue));
     }
 
     private Label receiptLabel(String label, String value) {

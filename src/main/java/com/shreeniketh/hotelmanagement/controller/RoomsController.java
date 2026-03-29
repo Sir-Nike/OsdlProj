@@ -50,13 +50,11 @@ public class RoomsController {
         roomStatusFilter.setItems(FXCollections.observableArrayList(
                 "All Rooms",
                 Room.AVAILABLE_STATUS,
-                Room.BOOKED_STATUS,
-            Room.OCCUPIED_STATUS));
+                Room.OCCUPIED_STATUS));
         roomStatusFilter.setValue("All Rooms");
         roomStatusFilter.valueProperty().addListener((observable, oldValue, newValue) -> refreshRooms());
         roomTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             selectedRoom = newValue;
-            populateFields(newValue);
             updateActionStates();
         });
         refreshRooms();
@@ -115,19 +113,6 @@ public class RoomsController {
         priceField.clear();
         roomTypeChoiceBox.setValue(service.listRoomTypes().get(0));
         updateActionStates();
-    }
-
-    private void populateFields(Room room) {
-        if (room == null) {
-            roomNoField.clear();
-            priceField.clear();
-            roomTypeChoiceBox.setValue(service.listRoomTypes().get(0));
-            return;
-        }
-
-        roomNoField.setText(String.valueOf(room.getRoomNo()));
-        priceField.setText(String.valueOf(room.getPricePerDay()));
-        roomTypeChoiceBox.setValue(room.getRoomType());
     }
 
     private void updateActionStates() {

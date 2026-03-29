@@ -81,13 +81,28 @@ public final class Database {
             }
         }
 
-        if (!hasStatusColumn) {
+        if (hasAvailableColumn) {
+            // One-time migration for old schema where `available` is NOT NULL.
+            // Rebuild the table so inserts only require the new `status` column.
+            statement.execute("PRAGMA foreign_keys = OFF");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS rooms_new (room_no INTEGER PRIMARY KEY, room_type TEXT NOT NULL, price_per_day REAL NOT NULL, status TEXT NOT NULL)");
+            statement.executeUpdate("""
+                    INSERT INTO rooms_new(room_no, room_type, price_per_day, status)
+                    SELECT room_no,
+                           room_type,
+                           price_per_day,
+                           CASE
+                               WHEN status IS NOT NULL AND TRIM(status) <> '' THEN status
+                               WHEN available = 1 THEN 'Available'
+                               ELSE 'Booked'
+                           END
+                    FROM rooms
+                    """);
+            statement.executeUpdate("DROP TABLE rooms");
+            statement.executeUpdate("ALTER TABLE rooms_new RENAME TO rooms");
+            statement.execute("PRAGMA foreign_keys = ON");
+        } else if (!hasStatusColumn) {
             statement.executeUpdate("ALTER TABLE rooms ADD COLUMN status TEXT NOT NULL DEFAULT 'Available'");
-            if (hasAvailableColumn) {
-                statement.executeUpdate("UPDATE rooms SET status = CASE WHEN available = 1 THEN 'Available' ELSE 'Booked' END");
-            }
-        } else if (hasAvailableColumn) {
-            statement.executeUpdate("UPDATE rooms SET status = CASE WHEN status IS NULL OR status = '' THEN CASE WHEN available = 1 THEN 'Available' ELSE 'Booked' END ELSE status END");
         }
     }
 

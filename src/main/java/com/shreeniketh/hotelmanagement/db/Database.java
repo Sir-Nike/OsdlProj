@@ -104,12 +104,14 @@ public final class Database {
         } else if (!hasStatusColumn) {
             statement.executeUpdate("ALTER TABLE rooms ADD COLUMN status TEXT NOT NULL DEFAULT 'Available'");
         }
+
+        statement.executeUpdate("UPDATE rooms SET room_type = 'Single bed' WHERE lower(room_type) = 'standard'");
     }
 
     private static void seedRooms(Statement statement) throws SQLException {
         try (var resultSet = statement.executeQuery("SELECT COUNT(*) AS room_count FROM rooms")) {
             if (resultSet.next() && resultSet.getInt("room_count") == 0) {
-                statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, status) VALUES (101, 'Standard', 1200.0, 'Available')");
+                statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, status) VALUES (101, 'Single bed', 1200.0, 'Available')");
                 statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, status) VALUES (102, 'Deluxe', 1800.0, 'Available')");
                 statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, status) VALUES (201, 'Suite', 2500.0, 'Available')");
             }

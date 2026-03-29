@@ -50,7 +50,7 @@ public class RoomsController {
         roomStatusFilter.setItems(FXCollections.observableArrayList(
                 "All Rooms",
                 Room.AVAILABLE_STATUS,
-                Room.OCCUPIED_STATUS));
+            Room.BOOKED_STATUS));
         roomStatusFilter.setValue("All Rooms");
         roomStatusFilter.valueProperty().addListener((observable, oldValue, newValue) -> refreshRooms());
         roomTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {

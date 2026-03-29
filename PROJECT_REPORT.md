@@ -2,9 +2,10 @@
 
 ## 1. Project Overview
 
-This project is a modular JavaFX hotel management system built with Maven, SQLite, FXML, and CSS. It supports room management, customer management, and billing generation from a single desktop interface.
+This project is a modular JavaFX hotel management system built with Maven (for project management), SQLite (for storing records), FXML (Used alongside JavaFX for UI design), and CSS (Used to add colour and touch up on UI). It supports room management, customer management, and billing generation from a single desktop interface.
 
-The application starts by initializing the database, loading the main FXML layout, and applying the base stylesheet. The startup code is small, but it establishes the full app shell: database availability, UI loading, and styling in one place.
+The application starts by initializing the database, loading the main FXML layout, and applying the base stylesheet. The startup code is small, but it establishes the full app shell: database availability, UI loading, and styling in one place
+
 
 ```java
 public class HotelManagementApp extends Application {
@@ -32,11 +33,11 @@ public class HotelManagementApp extends Application {
 The application uses:
 
 - JavaFX for the user interface
-- FXML for declarative UI layout
-- Scene Builder for visual layout editing
+- Scene Builder(FXML) for visual layout editing
 - JDBC with SQLite for data storage
-- CSS for styling
+- CSS for styling UI/UX
 - Maven for build and dependency management
+- Java built in libraries for data structures, file paths etc
 
 ## 3. Application Structure
 
@@ -48,7 +49,7 @@ The code is organized into clear layers:
 - `model` for data objects
 - `db` for database initialization and connection handling
 
-This separation keeps the UI, business logic, and persistence layers independent and easier to maintain.
+This separation keeps the UI, business logic, and persistence layers independent and easier to maintain. It also keeps the project modular, allowing for changes in specific parts of the project without disturbing the entire program.
 
 ## 4. FXML and Scene Builder
 
@@ -85,16 +86,29 @@ The same structure appears directly in `billing-view.fxml`. The root `VBox` crea
 
 The controller name is linked through `fx:controller`, and the buttons use `onAction` handlers such as `generateBill`, `refreshBills`, and `refreshCustomers`. In Scene Builder, that means the visual layout and the Java controller stay connected without hand-written UI construction code.
 
-## 5. Billing Screen Walkthrough
+In other words, Scene builder allows us to model UI/UX without having to directly code the FXML. The FXML is loaded when the program runs, and when certain events occur (this is handled by the JavaFX library)
 
-The billing screen is designed to support checkout in one place. The user first selects an active customer, then generates a bill, and the system immediately marks the customer as checked out.
+## 5. Module and Build Setup
 
-- The top panel describes the billing flow.
-- The customer table shows active customers only.
-- The action bar contains `Generate Bill`, `Refresh`, and `Reload Customers` buttons.
-- The lower table displays billing history.
+The project is modular and uses JavaFX plus SQLite through Maven. The module descriptor keeps JavaFX controller access explicit, which is required because FXML uses reflection to inject controls and invoke handler methods.
 
-This layout is easy to build in Scene Builder because each region is a simple VBox or HBox, and the tables are inserted visually without manual pixel positioning. Scene Builder is useful here because the screen is naturally sectioned, so each panel can be assembled and adjusted visually before wiring it to the controller.
+```java
+module com.shreeniketh.hotelmanagement {
+    requires javafx.controls;
+    requires javafx.fxml;
+    requires transitive javafx.graphics;
+    requires java.sql;
+
+    exports com.shreeniketh.hotelmanagement;
+    exports com.shreeniketh.hotelmanagement.model;
+
+    opens com.shreeniketh.hotelmanagement.controller to javafx.fxml;
+}
+```
+
+The Maven configuration includes the JavaFX Windows classifiers and SQLite JDBC dependency. The JavaFX classifier is important on Windows because the UI libraries are platform-specific, while SQLite gives the application a lightweight local database with no external server setup.
+
+
 
 ## 6. Controller Logic
 
@@ -224,28 +238,24 @@ public static synchronized void initialize() {
 }
 ```
 
-## 9. Module and Build Setup
 
-The project is modular and uses JavaFX plus SQLite through Maven. The module descriptor keeps JavaFX controller access explicit, which is required because FXML uses reflection to inject controls and invoke handler methods.
+## 5. Billing Screen Walkthrough
 
-```java
-module com.shreeniketh.hotelmanagement {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires transitive javafx.graphics;
-    requires java.sql;
+The billing screen is designed to support checkout in one place. The user first selects an active customer, then generates a bill, and the system immediately marks the customer as checked out.
 
-    exports com.shreeniketh.hotelmanagement;
-    exports com.shreeniketh.hotelmanagement.model;
+- The top panel describes the billing flow.
+- The customer table shows active customers only.
+- The action bar contains `Generate Bill`, `Refresh`, and `Reload Customers` buttons.
+- The lower table displays billing history.
 
-    opens com.shreeniketh.hotelmanagement.controller to javafx.fxml;
-}
-```
-
-The Maven configuration includes the JavaFX Windows classifiers and SQLite JDBC dependency. The JavaFX classifier is important on Windows because the UI libraries are platform-specific, while SQLite gives the application a lightweight local database with no external server setup.
+This layout is easy to build in Scene Builder because each region is a simple VBox or HBox, and the tables are inserted visually without manual pixel positioning. Scene Builder is useful here because the screen is naturally sectioned, so each panel can be assembled and adjusted visually before wiring it to the controller.
 
 ## 10. Summary
 
 This project demonstrates a clean JavaFX desktop application with a layered architecture. FXML and Scene Builder keep the UI layout readable and maintainable, while the service and repository layers handle the database-backed hotel workflows.
 
 The code is easy to explain because each layer has one job: the FXML file defines structure, the controller handles user interaction, the service enforces rules, and the repositories talk to the database.
+
+Due to the modular nature of this project, where each repository acts as its own unit in the software, any changes made in one ‘module’ will not drastically change the project.
+
+Future developments that could be done are Room service manager, with room cleaning, food delivery amongst other things.  Another place we can expand on is to make an Android app as well and host the database on a server. Have different levels of views based on the level of employee (receptionist, admin, room service) and provide only relevant details to said employee.

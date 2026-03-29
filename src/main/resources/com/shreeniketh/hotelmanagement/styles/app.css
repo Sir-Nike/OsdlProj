@@ -57,6 +57,10 @@
     -fx-text-fill: #5f6b76;
 }
 
+.label {
+    -fx-text-fill: #1f2328;
+}
+
 .screen-header {
     padding: 2 2 0 2;
     -fx-padding: 2 2 0 2;
@@ -169,6 +173,42 @@
 
 .table-view, .text-field, .text-area, .check-box {
     -fx-background-radius: 6;
+}
+
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cfd6de;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #1f2328;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0 6 6 0;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cfd6de;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1f2328;
+}
+
+.combo-box-popup .list-cell:filled:hover {
+    -fx-background-color: #f4f7fb;
+}
+
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #e7edf5;
+    -fx-text-fill: #1f2328;
 }
 
 .bill-summary {

@@ -1,0 +1,125 @@
+.root {
+    font-family: "Segoe UI Variable Text", "Aptos", "Segoe UI", sans-serif;
+    -fx-font-family: "Segoe UI Variable Text", "Aptos", "Segoe UI", sans-serif;
+    font-size: 13px;
+    -fx-font-size: 13px;
+    background-color: #f4f6f8;
+    -fx-background-color: #f4f6f8;
+}
+
+.header-bar {
+    background-color: #ffffff;
+    -fx-background-color: #ffffff;
+    border-color: #d9dfe5;
+    -fx-border-color: #d9dfe5;
+    border-width: 0 0 1 0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.nav-panel {
+    background-color: #ffffff;
+    -fx-background-color: #ffffff;
+    border-color: #d9dfe5;
+    -fx-border-color: #d9dfe5;
+    border-width: 0 1 0 0;
+    -fx-border-width: 0 1 0 0;
+}
+
+.nav-heading {
+    font-size: 14px;
+    -fx-font-size: 14px;
+    font-weight: 600;
+    -fx-font-weight: 600;
+}
+
+.app-title {
+    font-size: 21px;
+    -fx-font-size: 21px;
+    font-weight: 600;
+    -fx-font-weight: 600;
+}
+
+.screen-title {
+    font-size: 17px;
+    -fx-font-size: 17px;
+    font-weight: 600;
+    -fx-font-weight: 600;
+}
+
+.section-title {
+    font-size: 13px;
+    -fx-font-size: 13px;
+    font-weight: 600;
+    -fx-font-weight: 600;
+}
+
+.helper-text {
+    -fx-text-fill: #5f6b76;
+}
+
+.screen-header {
+    padding: 2 2 0 2;
+    -fx-padding: 2 2 0 2;
+}
+
+.surface-panel {
+    background-color: #ffffff;
+    -fx-background-color: #ffffff;
+    border-color: #d9dfe5;
+    -fx-border-color: #d9dfe5;
+    border-radius: 8;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    padding: 14;
+    -fx-padding: 14;
+}
+
+.action-bar {
+    padding: 2 0 0 0;
+    -fx-padding: 2 0 0 0;
+}
+
+.button {
+    padding: 7 14;
+    -fx-background-radius: 6;
+    -fx-padding: 7 14;
+}
+
+.primary-button {
+    font-weight: 600;
+    -fx-font-weight: 600;
+}
+
+.icon-button {
+    font-size: 16px;
+    -fx-font-size: 16px;
+    font-weight: 600;
+    -fx-font-weight: 600;
+    padding: 0 0;
+    -fx-padding: 0 0;
+    min-width: 36;
+    -fx-min-width: 36;
+    min-height: 36;
+    -fx-min-height: 36;
+    -fx-pref-width: 36;
+    -fx-pref-height: 36;
+}
+
+.table-view, .text-field, .text-area, .check-box {
+    -fx-background-radius: 6;
+}
+
+.bill-summary {
+    font-family: "Consolas", "Courier New", monospace;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    font-size: 13px;
+    -fx-font-size: 13px;
+    background-color: #fbfbfb;
+    -fx-background-color: #fbfbfb;
+    border-color: #d9dfe5;
+    -fx-border-color: #d9dfe5;
+    border-radius: 6;
+    -fx-border-radius: 6;
+    padding: 10;
+    -fx-padding: 10;
+}

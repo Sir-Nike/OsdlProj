@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="14.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shreeniketh.hotelmanagement.controller.RoomsController">
+    <children>
+        <VBox spacing="4.0" styleClass="screen-header">
+            <children>
+                <Label styleClass="screen-title" text="Room Management" />
+                <Label styleClass="helper-text" text="Add rooms, remove empty rooms, and track availability in one place." wrapText="true" />
+            </children>
+        </VBox>
+        <VBox spacing="10.0" styleClass="surface-panel">
+            <children>
+                <Label styleClass="section-title" text="Room list" />
+                <TableView fx:id="roomTable" prefHeight="330.0">
+                    <columns>
+                        <TableColumn fx:id="roomNoColumn" prefWidth="120.0" text="Room No" />
+                        <TableColumn fx:id="roomTypeColumn" prefWidth="220.0" text="Room Type" />
+                        <TableColumn fx:id="pricePerDayColumn" prefWidth="180.0" text="Price / Day" />
+                        <TableColumn fx:id="availabilityColumn" prefWidth="140.0" text="Status" />
+                    </columns>
+                </TableView>
+            </children>
+        </VBox>
+        <VBox spacing="10.0" styleClass="surface-panel">
+            <children>
+                <Label styleClass="section-title" text="Room details" />
+                <GridPane hgap="12.0" vgap="12.0">
+                    <padding>
+                        <Insets top="4.0" />
+                    </padding>
+                    <children>
+                        <Label text="Room No" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="roomNoField" promptText="101" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label text="Room Type" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="roomTypeChoiceBox" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label text="Price / Day" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="priceField" promptText="1500" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    </children>
+                </GridPane>
+                <HBox spacing="10.0" styleClass="action-bar">
+                    <children>
+                        <Button styleClass="primary-button" onAction="#addRoom" text="Add Room" />
+                        <Button onAction="#removeRoom" text="Remove Room" />
+                        <Button onAction="#refreshRooms" text="Refresh" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</VBox>

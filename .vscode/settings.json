@@ -1,0 +1,5 @@
+{
+  "java.jdt.ls.java.home": "C:\\Program Files\\Microsoft\\jdk-25.0.2.10-hotspot",
+  "java.import.maven.enabled": true,
+  "java.configuration.updateBuildConfiguration": "automatic"
+}

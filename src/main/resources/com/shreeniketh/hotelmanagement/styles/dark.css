@@ -1,0 +1,115 @@
+.root {
+    -fx-font-family: "Segoe UI Variable Text", "Aptos", "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+    -fx-background-color: #111418;
+    -fx-text-fill: #e7e9ec;
+}
+
+.header-bar {
+    -fx-background-color: #171b21;
+    -fx-border-color: #2a3139;
+    -fx-border-width: 0 0 1 0;
+}
+
+.nav-panel {
+    -fx-background-color: #171b21;
+    -fx-border-color: #2a3139;
+    -fx-border-width: 0 1 0 0;
+}
+
+.nav-heading {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #f0f2f4;
+}
+
+.app-title {
+    -fx-font-size: 21px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #f6f7f8;
+}
+
+.screen-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #f6f7f8;
+}
+
+.section-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #f0f2f4;
+}
+
+.helper-text {
+    -fx-text-fill: #a7b0b8;
+}
+
+.screen-header {
+    -fx-padding: 2 2 0 2;
+}
+
+.surface-panel {
+    -fx-background-color: #171b21;
+    -fx-border-color: #2a3139;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 14;
+}
+
+.action-bar {
+    -fx-padding: 2 0 0 0;
+}
+
+.button {
+    -fx-background-radius: 6;
+    -fx-padding: 7 14;
+    -fx-background-color: #232a33;
+    -fx-text-fill: #f0f2f4;
+}
+
+.primary-button {
+    -fx-font-weight: 600;
+    -fx-background-color: #d9e2ec;
+    -fx-text-fill: #111418;
+}
+
+.text-field, .text-area {
+    -fx-background-color: #1f252d;
+    -fx-text-fill: #f0f2f4;
+    -fx-prompt-text-fill: #8d97a1;
+    -fx-background-radius: 6;
+    -fx-border-color: #2a3139;
+    -fx-border-radius: 6;
+}
+
+.table-view {
+    -fx-background-color: #171b21;
+    -fx-table-cell-border-color: #2a3139;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #1f252d;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: #1f252d;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #f0f2f4;
+    -fx-font-weight: 600;
+}
+
+.table-row-cell {
+    -fx-background-color: #171b21;
+    -fx-text-background-color: #f0f2f4;
+}
+
+.table-row-cell:filled:selected, .table-row-cell:filled:selected:hover {
+    -fx-background-color: #27303a;
+}
+
+.check-box {
+    -fx-text-fill: #f0f2f4;
+}

@@ -1,11 +1,10 @@
 # Hotel Management System
-
-Minimal JavaFX hotel management app built with Java 25, Maven, modular Java, and JDBC-backed persistence using SQLite.
+ A hotel amangement system built using JavaFX, Scene Builder, JDBC (sqlite3), and CSS 
 
 ## Features
 
-- Room management: add and remove rooms
-- Customer management: create customer, check in, check out
+- Room management: Add and remove rooms, Drop down choice for types of rooms. Filter rooms by available and occupied. 
+- Customer management: create customer,  automatically increases customer ID, drop down for room number
 - Billing management: generate and store bills based on the number of nights bought before check-in
 - Modular JavaFX UI using FXML, which can be opened and edited in Scene Builder
 
@@ -19,5 +18,7 @@ The app creates a local database file named `hotel-management.db` in the project
 
 ## Notes
 
-- The UI is intentionally simple and uses only a small amount of CSS.
-- All main screens are defined in FXML and are suitable for Scene Builder.
+- This is a project for OSDL, a lab course in college.
+- Used scene builder to make the general layout for the UI of the application
+- used SQLite3 to store data to utilize the JDBC
+- Maven for Javafx used to  build the project.

@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -39,12 +38,11 @@
                 <Label styleClass="section-title" text="Bill generator" />
                 <HBox spacing="10.0" styleClass="action-bar">
                     <children>
-                        <Button styleClass="primary-button" onAction="#generateBill" text="Generate Bill" />
+                        <Button fx:id="generateBillButton" styleClass="primary-button" onAction="#generateBill" text="Generate Bill" />
                         <Button onAction="#refreshBills" text="Refresh" />
                         <Button onAction="#refreshCustomers" text="Reload Customers" />
                     </children>
                 </HBox>
-                <TextArea fx:id="billSummaryArea" styleClass="bill-summary" prefRowCount="12" promptText="Generated bill appears here" wrapText="true" />
             </children>
         </VBox>
         <VBox spacing="10.0" styleClass="surface-panel">

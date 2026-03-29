@@ -6,6 +6,7 @@ import com.shreeniketh.hotelmanagement.service.HotelService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -43,6 +44,10 @@ public class CustomersController {
     private TextField nightsField;
     @FXML
     private Label customerIdPreviewLabel;
+    @FXML
+    private Button createCustomerButton;
+    @FXML
+    private Button checkInCustomerButton;
 
     private final HotelService service = new HotelService();
 
@@ -56,9 +61,15 @@ public class CustomersController {
         checkedInColumn.setCellValueFactory(new PropertyValueFactory<>("checkedIn"));
         checkedOutColumn.setCellValueFactory(new PropertyValueFactory<>("checkedOut"));
         customerIdField.setEditable(false);
+        customerTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateActionStates());
+        customerNameField.textProperty().addListener((observable, oldValue, newValue) -> updateActionStates());
+        phoneNumberField.textProperty().addListener((observable, oldValue, newValue) -> updateActionStates());
+        nightsField.textProperty().addListener((observable, oldValue, newValue) -> updateActionStates());
+        roomNoChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> updateActionStates());
         refreshRoomOptions();
         refreshNextCustomerId();
         refreshCustomers();
+        updateActionStates();
     }
 
     @FXML
@@ -88,6 +99,7 @@ public class CustomersController {
             service.checkInCustomer(requireSelectedCustomer().getCustomerId());
             refreshRoomOptions();
             refreshCustomers();
+            updateActionStates();
         } catch (IllegalArgumentException exception) {
             showAlert(Alert.AlertType.ERROR, "Cannot check in", exception.getMessage());
         }
@@ -101,6 +113,7 @@ public class CustomersController {
     @FXML
     private void refreshCustomers() {
         customerTable.setItems(FXCollections.observableArrayList(service.listCustomers()));
+        updateActionStates();
     }
 
     @FXML
@@ -108,7 +121,10 @@ public class CustomersController {
         roomNoChoiceBox.setItems(FXCollections.observableArrayList(service.listAvailableRoomNumbers()));
         if (!roomNoChoiceBox.getItems().isEmpty()) {
             roomNoChoiceBox.setValue(roomNoChoiceBox.getItems().get(0));
+        } else {
+            roomNoChoiceBox.setValue(null);
         }
+        updateActionStates();
     }
 
     @FXML
@@ -124,6 +140,7 @@ public class CustomersController {
         phoneNumberField.clear();
         nightsField.clear();
         refreshNextCustomerId();
+        updateActionStates();
     }
 
     private Customer requireSelectedCustomer() {
@@ -140,5 +157,21 @@ public class CustomersController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void updateActionStates() {
+        if (createCustomerButton != null) {
+            boolean hasRoom = roomNoChoiceBox.getValue() != null;
+            boolean hasFields = !customerNameField.getText().isBlank()
+                    && !phoneNumberField.getText().isBlank()
+                    && !nightsField.getText().isBlank();
+            createCustomerButton.setDisable(!hasRoom || !hasFields);
+        }
+
+        if (checkInCustomerButton != null) {
+            Customer selectedCustomer = customerTable.getSelectionModel().getSelectedItem();
+            boolean canCheckIn = selectedCustomer != null && !selectedCustomer.getCheckedIn() && !selectedCustomer.getCheckedOut();
+            checkInCustomerButton.setDisable(!canCheckIn);
+        }
     }
 }

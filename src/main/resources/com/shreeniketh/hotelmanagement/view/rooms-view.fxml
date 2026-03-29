@@ -22,6 +22,12 @@
         <VBox spacing="10.0" styleClass="surface-panel">
             <children>
                 <Label styleClass="section-title" text="Room list" />
+                <HBox spacing="10.0" styleClass="action-bar">
+                    <children>
+                        <Label text="Filter" />
+                        <ComboBox fx:id="roomStatusFilter" prefWidth="180.0" />
+                    </children>
+                </HBox>
                 <TableView fx:id="roomTable" prefHeight="330.0">
                     <columns>
                         <TableColumn fx:id="roomNoColumn" prefWidth="120.0" text="Room No" />
@@ -51,7 +57,7 @@
                 <HBox spacing="10.0" styleClass="action-bar">
                     <children>
                         <Button styleClass="primary-button" onAction="#addRoom" text="Add Room" />
-                        <Button onAction="#removeRoom" text="Remove Room" />
+                        <Button fx:id="removeRoomButton" onAction="#removeRoom" text="Remove Room" />
                         <Button onAction="#refreshRooms" text="Refresh" />
                     </children>
                 </HBox>

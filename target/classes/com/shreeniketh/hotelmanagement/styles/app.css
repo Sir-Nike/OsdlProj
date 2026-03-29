@@ -80,29 +80,91 @@
 }
 
 .button {
+    background-color: #ffffff;
+    -fx-background-color: #ffffff;
+    border-color: #cfd6de;
+    -fx-border-color: #cfd6de;
+    border-width: 1;
+    -fx-border-width: 1;
+    -fx-text-fill: #1f2328;
     padding: 7 14;
     -fx-background-radius: 6;
+    -fx-border-radius: 6;
     -fx-padding: 7 14;
 }
 
+.button:hover {
+    background-color: #f4f7fb;
+    -fx-background-color: #f4f7fb;
+    border-color: #b9c3cf;
+    -fx-border-color: #b9c3cf;
+}
+
+.button:pressed {
+    background-color: #e7edf5;
+    -fx-background-color: #e7edf5;
+}
+
+.button:disabled {
+    -fx-opacity: 0.55;
+}
+
 .primary-button {
+    background-color: #1f4fbf;
+    -fx-background-color: #1f4fbf;
+    border-color: #1f4fbf;
+    -fx-border-color: #1f4fbf;
+    -fx-text-fill: #ffffff;
     font-weight: 600;
     -fx-font-weight: 600;
 }
 
+.primary-button:hover {
+    background-color: #245ddf;
+    -fx-background-color: #245ddf;
+    border-color: #245ddf;
+    -fx-border-color: #245ddf;
+}
+
+.primary-button:pressed {
+    background-color: #1843a3;
+    -fx-background-color: #1843a3;
+    border-color: #1843a3;
+    -fx-border-color: #1843a3;
+}
+
 .icon-button {
+    background-color: #ffffff;
+    -fx-background-color: #ffffff;
+    border-color: #cfd6de;
+    -fx-border-color: #cfd6de;
+    -fx-text-fill: #1f2328;
     font-size: 16px;
     -fx-font-size: 16px;
     font-weight: 600;
     -fx-font-weight: 600;
     padding: 0 0;
     -fx-padding: 0 0;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
     min-width: 36;
     -fx-min-width: 36;
     min-height: 36;
     -fx-min-height: 36;
     -fx-pref-width: 36;
     -fx-pref-height: 36;
+}
+
+.icon-button:hover {
+    background-color: #f4f7fb;
+    -fx-background-color: #f4f7fb;
+    border-color: #b9c3cf;
+    -fx-border-color: #b9c3cf;
+}
+
+.icon-button:pressed {
+    background-color: #e7edf5;
+    -fx-background-color: #e7edf5;
 }
 
 .table-view, .text-field, .text-area, .check-box {
@@ -116,6 +178,8 @@
     -fx-font-size: 13px;
     background-color: #fbfbfb;
     -fx-background-color: #fbfbfb;
+    -fx-control-inner-background: #fbfbfb;
+    -fx-text-fill: #1f2328;
     border-color: #d9dfe5;
     -fx-border-color: #d9dfe5;
     border-radius: 6;

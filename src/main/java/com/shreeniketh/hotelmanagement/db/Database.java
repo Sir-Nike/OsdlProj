@@ -3,6 +3,7 @@ package com.shreeniketh.hotelmanagement.db;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -26,9 +27,10 @@ public final class Database {
                         room_no INTEGER PRIMARY KEY,
                         room_type TEXT NOT NULL,
                         price_per_day REAL NOT NULL,
-                        available INTEGER NOT NULL
+                        status TEXT NOT NULL
                     )
                     """);
+            ensureRoomStatusColumn(statement);
             statement.execute("""
                     CREATE TABLE IF NOT EXISTS customers (
                         customer_id TEXT PRIMARY KEY,
@@ -63,12 +65,38 @@ public final class Database {
         }
     }
 
+    private static void ensureRoomStatusColumn(Statement statement) throws SQLException {
+        boolean hasStatusColumn = false;
+        boolean hasAvailableColumn = false;
+
+        try (ResultSet resultSet = statement.executeQuery("PRAGMA table_info(rooms)")) {
+            while (resultSet.next()) {
+                String columnName = resultSet.getString("name");
+                if ("status".equalsIgnoreCase(columnName)) {
+                    hasStatusColumn = true;
+                }
+                if ("available".equalsIgnoreCase(columnName)) {
+                    hasAvailableColumn = true;
+                }
+            }
+        }
+
+        if (!hasStatusColumn) {
+            statement.executeUpdate("ALTER TABLE rooms ADD COLUMN status TEXT NOT NULL DEFAULT 'Available'");
+            if (hasAvailableColumn) {
+                statement.executeUpdate("UPDATE rooms SET status = CASE WHEN available = 1 THEN 'Available' ELSE 'Booked' END");
+            }
+        } else if (hasAvailableColumn) {
+            statement.executeUpdate("UPDATE rooms SET status = CASE WHEN status IS NULL OR status = '' THEN CASE WHEN available = 1 THEN 'Available' ELSE 'Booked' END ELSE status END");
+        }
+    }
+
     private static void seedRooms(Statement statement) throws SQLException {
         try (var resultSet = statement.executeQuery("SELECT COUNT(*) AS room_count FROM rooms")) {
             if (resultSet.next() && resultSet.getInt("room_count") == 0) {
-                statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, available) VALUES (101, 'Standard', 1200.0, 1)");
-                statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, available) VALUES (102, 'Deluxe', 1800.0, 1)");
-                statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, available) VALUES (201, 'Suite', 2500.0, 1)");
+                statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, status) VALUES (101, 'Standard', 1200.0, 'Available')");
+                statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, status) VALUES (102, 'Deluxe', 1800.0, 'Available')");
+                statement.executeUpdate("INSERT INTO rooms(room_no, room_type, price_per_day, status) VALUES (201, 'Suite', 2500.0, 'Available')");
             }
         }
     }

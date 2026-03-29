@@ -6,11 +6,18 @@ import com.shreeniketh.hotelmanagement.service.HotelService;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 @SuppressWarnings("unused")
 public class BillingController {
@@ -31,7 +38,7 @@ public class BillingController {
     @FXML
     private TableColumn<Customer, Boolean> checkedOutColumn;
     @FXML
-    private TextArea billSummaryArea;
+    private Button generateBillButton;
     @FXML
     private TableView<Bill> billTable;
     @FXML
@@ -73,9 +80,10 @@ public class BillingController {
         billPriceColumn.setCellValueFactory(new PropertyValueFactory<>("pricePerDay"));
         billTotalColumn.setCellValueFactory(new PropertyValueFactory<>("totalAmount"));
         billCreatedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-        billSummaryArea.setEditable(false);
+        customerTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateActionStates());
         refreshCustomers();
         refreshBills();
+        updateActionStates();
     }
 
     @FXML
@@ -83,10 +91,11 @@ public class BillingController {
         try {
             Customer selectedCustomer = requireSelectedCustomer();
             Bill bill = service.checkOutCustomer(selectedCustomer.getCustomerId());
-            billSummaryArea.setText(buildSummary(bill));
+            showBillWindow(bill);
             customerTable.getSelectionModel().clearSelection();
             refreshCustomers();
             refreshBills();
+            updateActionStates();
         } catch (IllegalArgumentException exception) {
             showAlert(Alert.AlertType.ERROR, "Cannot generate bill", exception.getMessage());
         }
@@ -95,6 +104,7 @@ public class BillingController {
     @FXML
     private void refreshCustomers() {
         customerTable.setItems(FXCollections.observableArrayList(service.listActiveCustomers()));
+        updateActionStates();
     }
 
     @FXML
@@ -102,25 +112,62 @@ public class BillingController {
         billTable.setItems(FXCollections.observableArrayList(service.listBills()));
     }
 
-    private String buildSummary(Bill bill) {
-        String line = "--------------------------------------";
-        return line + System.lineSeparator()
-                + "           HOTEL BILL" + System.lineSeparator()
-                + line + System.lineSeparator()
-                + formatReceiptLine("Bill No", String.valueOf(bill.getBillId())) + System.lineSeparator()
-                + formatReceiptLine("Customer", bill.getCustomerName()) + System.lineSeparator()
-                + formatReceiptLine("Customer ID", bill.getCustomerId()) + System.lineSeparator()
-                + formatReceiptLine("Room No", String.valueOf(bill.getRoomNo())) + System.lineSeparator()
-                + formatReceiptLine("Room Type", bill.getRoomType()) + System.lineSeparator()
-                + formatReceiptLine("Nights", String.valueOf(bill.getNightsBought())) + System.lineSeparator()
-                + formatReceiptLine("Price/Day", String.format("%.2f", bill.getPricePerDay())) + System.lineSeparator()
-                + formatReceiptLine("Total", String.format("%.2f", bill.getTotalAmount())) + System.lineSeparator()
-                + formatReceiptLine("Date", bill.getCreatedAt()) + System.lineSeparator()
-                + line;
+    private void showBillWindow(Bill bill) {
+        VBox receipt = new VBox(10);
+        receipt.setAlignment(Pos.TOP_CENTER);
+        receipt.setPadding(new Insets(18));
+        receipt.getStyleClass().add("surface-panel");
+        receipt.setStyle("-fx-background-radius: 10;");
+
+        Label title = new Label("HOTEL BILL");
+        title.getStyleClass().add("screen-title");
+
+        Label dividerTop = new Label("--------------------------------------");
+        Label dividerBottom = new Label("--------------------------------------");
+        dividerTop.getStyleClass().add("helper-text");
+        dividerBottom.getStyleClass().add("helper-text");
+
+        VBox fields = new VBox(6,
+                receiptLabel("Bill No", String.valueOf(bill.getBillId())),
+                receiptLabel("Customer", bill.getCustomerName()),
+                receiptLabel("Customer ID", bill.getCustomerId()),
+                receiptLabel("Room No", String.valueOf(bill.getRoomNo())),
+                receiptLabel("Room Type", bill.getRoomType()),
+                receiptLabel("Nights", String.valueOf(bill.getNightsBought())),
+                receiptLabel("Price/Day", String.format("%.2f", bill.getPricePerDay())),
+                receiptLabel("Total", String.format("%.2f", bill.getTotalAmount())),
+                receiptLabel("Date", bill.getCreatedAt()));
+        fields.setAlignment(Pos.TOP_LEFT);
+
+        receipt.getChildren().addAll(title, dividerTop, fields, dividerBottom);
+
+        Scene scene = new Scene(receipt, 320, 520);
+        Scene ownerScene = customerTable.getScene();
+        if (ownerScene != null) {
+            scene.getStylesheets().addAll(ownerScene.getStylesheets());
+        }
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.NONE);
+        stage.setTitle("Bill Receipt");
+        stage.setResizable(false);
+        stage.setScene(scene);
+        stage.show();
     }
 
-    private String formatReceiptLine(String label, String value) {
-        return String.format("%-14s : %s", label, value);
+    private void updateActionStates() {
+        if (generateBillButton != null) {
+            Customer selectedCustomer = customerTable.getSelectionModel().getSelectedItem();
+            boolean canGenerateBill = selectedCustomer != null && selectedCustomer.getCheckedIn() && !selectedCustomer.getCheckedOut();
+            generateBillButton.setDisable(!canGenerateBill);
+        }
+    }
+
+    private Label receiptLabel(String label, String value) {
+        Label receiptLabel = new Label(label + ": " + value);
+        receiptLabel.getStyleClass().add("helper-text");
+        receiptLabel.setWrapText(true);
+        return receiptLabel;
     }
 
     private Customer requireSelectedCustomer() {

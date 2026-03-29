@@ -1,5 +1,7 @@
 package com.shreeniketh.hotelmanagement.service;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -40,7 +42,7 @@ public class HotelService {
         return ROOM_TYPES;
     }
 
-    public void addRoom(int roomNo, String roomType, double pricePerDay, boolean available) {
+    public void addRoom(int roomNo, String roomType, double pricePerDay) {
         if (roomType == null || roomType.isBlank()) {
             throw new IllegalArgumentException("Room type is required.");
         }
@@ -51,7 +53,7 @@ public class HotelService {
             throw new IllegalArgumentException("That room number already exists.");
         }
 
-        roomRepository.save(new Room(roomNo, roomType.trim(), pricePerDay, available));
+        roomRepository.save(new Room(roomNo, roomType.trim(), pricePerDay, Room.AVAILABLE_STATUS));
     }
 
     public void removeRoom(int roomNo) {
@@ -76,58 +78,73 @@ public class HotelService {
 
     public String createCustomer(String customerName, String phoneNumber, int roomNo, int nightsBought) {
         validateCustomerInput(customerName, phoneNumber, roomNo, nightsBought);
-        roomRepository.findByRoomNo(roomNo).orElseThrow(() -> new IllegalArgumentException("Chosen room does not exist."));
+        return runInTransaction(connection -> {
+            Room room = roomRepository.findByRoomNo(connection, roomNo).orElseThrow(() -> new IllegalArgumentException("Chosen room does not exist."));
+            if (!room.getAvailable()) {
+                throw new IllegalArgumentException("Selected room is not available.");
+            }
 
-        String customerId = nextCustomerId();
-        customerRepository.save(new Customer(customerId, customerName.trim(), phoneNumber.trim(), roomNo, nightsBought, false, false));
-        return customerId;
+            String customerId = customerRepository.nextCustomerId(connection);
+            int updatedRows = roomRepository.updateStatus(connection, roomNo, Room.BOOKED_STATUS);
+            if (updatedRows == 0) {
+                throw new IllegalArgumentException("Selected room was just booked by another customer.");
+            }
+
+            customerRepository.save(connection, new Customer(customerId, customerName.trim(), phoneNumber.trim(), roomNo, nightsBought, false, false));
+            return customerId;
+        });
     }
 
     public void checkInCustomer(String customerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new IllegalArgumentException("Customer not found."));
-        if (customer.getCheckedIn()) {
-            throw new IllegalArgumentException("Customer is already checked in.");
-        }
-        if (customer.getCheckedOut()) {
-            throw new IllegalArgumentException("Customer has already checked out.");
-        }
+        runInTransaction(connection -> {
+            Customer customer = customerRepository.findById(connection, customerId).orElseThrow(() -> new IllegalArgumentException("Customer not found."));
+            if (customer.getCheckedIn()) {
+                throw new IllegalArgumentException("Customer is already checked in.");
+            }
+            if (customer.getCheckedOut()) {
+                throw new IllegalArgumentException("Customer has already checked out.");
+            }
 
-        Room room = roomRepository.findByRoomNo(customer.getRoomNo()).orElseThrow(() -> new IllegalArgumentException("Room not found."));
-        if (!room.getAvailable()) {
-            throw new IllegalArgumentException("Selected room is not available.");
-        }
+            Room room = roomRepository.findByRoomNo(connection, customer.getRoomNo()).orElseThrow(() -> new IllegalArgumentException("Room not found."));
+            if (!(Room.BOOKED_STATUS.equals(room.getStatus()) || room.getAvailable())) {
+                throw new IllegalArgumentException("Selected room is not ready for check-in.");
+            }
 
-        roomRepository.updateAvailability(room.getRoomNo(), false);
-        customerRepository.updateCheckInStatus(customerId, true);
+            roomRepository.updateStatus(connection, room.getRoomNo(), Room.OCCUPIED_STATUS);
+            customerRepository.updateCheckInStatus(connection, customerId, true);
+            return null;
+        });
     }
 
     public Bill checkOutCustomer(String customerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new IllegalArgumentException("Customer not found."));
-        if (!customer.getCheckedIn()) {
-            throw new IllegalArgumentException("Customer must be checked in before checkout.");
-        }
-        if (customer.getCheckedOut()) {
-            throw new IllegalArgumentException("Bill has already been produced for this customer.");
-        }
+        return runInTransaction(connection -> {
+            Customer customer = customerRepository.findById(connection, customerId).orElseThrow(() -> new IllegalArgumentException("Customer not found."));
+            if (!customer.getCheckedIn()) {
+                throw new IllegalArgumentException("Customer must be checked in before checkout.");
+            }
+            if (customer.getCheckedOut()) {
+                throw new IllegalArgumentException("Bill has already been produced for this customer.");
+            }
 
-        Room room = roomRepository.findByRoomNo(customer.getRoomNo()).orElseThrow(() -> new IllegalArgumentException("Room not found."));
-        double totalAmount = customer.getNightsBought() * room.getPricePerDay();
-        Bill bill = new Bill(
-                0,
-                customer.getCustomerId(),
-                customer.getCustomerName(),
-                room.getRoomNo(),
-                room.getRoomType(),
-                customer.getNightsBought(),
-                room.getPricePerDay(),
-                totalAmount,
-                LocalDateTime.now().format(BILL_TIME_FORMAT)
-        );
+            Room room = roomRepository.findByRoomNo(connection, customer.getRoomNo()).orElseThrow(() -> new IllegalArgumentException("Room not found."));
+            double totalAmount = customer.getNightsBought() * room.getPricePerDay();
+            Bill bill = new Bill(
+                    0,
+                    customer.getCustomerId(),
+                    customer.getCustomerName(),
+                    room.getRoomNo(),
+                    room.getRoomType(),
+                    customer.getNightsBought(),
+                    room.getPricePerDay(),
+                    totalAmount,
+                    LocalDateTime.now().format(BILL_TIME_FORMAT)
+            );
 
-        Bill savedBill = billRepository.save(bill);
-        customerRepository.updateCheckOutStatus(customerId, true);
-        roomRepository.updateAvailability(room.getRoomNo(), true);
-        return savedBill;
+            Bill savedBill = billRepository.save(connection, bill);
+            customerRepository.updateCheckOutStatus(connection, customerId, true);
+            roomRepository.updateStatus(connection, room.getRoomNo(), Room.AVAILABLE_STATUS);
+            return savedBill;
+        });
     }
 
     public List<Bill> listBills() {
@@ -153,5 +170,37 @@ public class HotelService {
         if (nightsBought <= 0) {
             throw new IllegalArgumentException("Nights bought must be greater than zero.");
         }
+    }
+
+    private <T> T runInTransaction(SqlFunction<Connection, T> action) {
+        try (Connection connection = com.shreeniketh.hotelmanagement.db.Database.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                T result = action.apply(connection);
+                connection.commit();
+                return result;
+            } catch (RuntimeException exception) {
+                rollbackQuietly(connection);
+                throw exception;
+            } catch (SQLException exception) {
+                rollbackQuietly(connection);
+                throw new IllegalStateException("Unable to complete the requested operation", exception);
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Unable to open database transaction", exception);
+        }
+    }
+
+    private void rollbackQuietly(Connection connection) {
+        try {
+            connection.rollback();
+        } catch (SQLException rollbackException) {
+            throw new IllegalStateException("Unable to roll back the transaction", rollbackException);
+        }
+    }
+
+    @FunctionalInterface
+    private interface SqlFunction<T, R> {
+        R apply(T value) throws SQLException;
     }
 }

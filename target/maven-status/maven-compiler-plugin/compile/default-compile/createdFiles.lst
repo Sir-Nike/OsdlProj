@@ -9,6 +9,7 @@ module-info.class
 com\shreeniketh\hotelmanagement\controller\BillingController.class
 com\shreeniketh\hotelmanagement\model\Room.class
 com\shreeniketh\hotelmanagement\repository\RoomRepository.class
+com\shreeniketh\hotelmanagement\service\HotelService$SqlFunction.class
 com\shreeniketh\hotelmanagement\service\HotelService.class
 com\shreeniketh\hotelmanagement\controller\RoomsController.class
 com\shreeniketh\hotelmanagement\HotelManagementApp.class

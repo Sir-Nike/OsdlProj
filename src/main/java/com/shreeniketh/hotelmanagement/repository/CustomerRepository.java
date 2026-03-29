@@ -25,7 +25,16 @@ public class CustomerRepository {
     }
 
     public String nextCustomerId() {
-        try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement("SELECT MAX(CAST(SUBSTR(customer_id, 2) AS INTEGER)) AS max_customer_id FROM customers WHERE customer_id LIKE 'C%'"); ResultSet resultSet = statement.executeQuery()) {
+        try (Connection connection = Database.getConnection()) {
+            return nextCustomerId(connection);
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Unable to generate next customer ID", exception);
+        }
+    }
+
+    public String nextCustomerId(Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT MAX(CAST(SUBSTR(customer_id, 2) AS INTEGER)) AS max_customer_id FROM customers WHERE customer_id LIKE 'C%'");
+                ResultSet resultSet = statement.executeQuery()) {
             int nextId = 1;
             if (resultSet.next()) {
                 int currentMax = resultSet.getInt("max_customer_id");
@@ -34,27 +43,39 @@ public class CustomerRepository {
                 }
             }
             return String.format("C%03d", nextId);
-        } catch (SQLException exception) {
-            throw new IllegalStateException("Unable to generate next customer ID", exception);
         }
     }
 
     public Optional<Customer> findById(String customerId) {
-        try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement("SELECT customer_id, customer_name, phone_number, room_no, nights_bought, checked_in, checked_out FROM customers WHERE customer_id = ?")) {
+        try (Connection connection = Database.getConnection()) {
+            return findById(connection, customerId);
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Unable to find customer", exception);
+        }
+    }
+
+    public Optional<Customer> findById(Connection connection, String customerId) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT customer_id, customer_name, phone_number, room_no, nights_bought, checked_in, checked_out FROM customers WHERE customer_id = ?")) {
             statement.setString(1, customerId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     return Optional.of(map(resultSet));
                 }
             }
-        } catch (SQLException exception) {
-            throw new IllegalStateException("Unable to find customer", exception);
         }
         return Optional.empty();
     }
 
     public void save(Customer customer) {
-        try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement("INSERT INTO customers(customer_id, customer_name, phone_number, room_no, nights_bought, checked_in, checked_out) VALUES (?, ?, ?, ?, ?, ?, ?)");) {
+        try (Connection connection = Database.getConnection()) {
+            save(connection, customer);
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Unable to save customer", exception);
+        }
+    }
+
+    public void save(Connection connection, Customer customer) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO customers(customer_id, customer_name, phone_number, room_no, nights_bought, checked_in, checked_out) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
             statement.setString(1, customer.getCustomerId());
             statement.setString(2, customer.getCustomerName());
             statement.setString(3, customer.getPhoneNumber());
@@ -63,28 +84,38 @@ public class CustomerRepository {
             statement.setInt(6, customer.getCheckedIn() ? 1 : 0);
             statement.setInt(7, customer.getCheckedOut() ? 1 : 0);
             statement.executeUpdate();
-        } catch (SQLException exception) {
-            throw new IllegalStateException("Unable to save customer", exception);
         }
     }
 
     public void updateCheckInStatus(String customerId, boolean checkedIn) {
-        try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement("UPDATE customers SET checked_in = ? WHERE customer_id = ?")) {
-            statement.setInt(1, checkedIn ? 1 : 0);
-            statement.setString(2, customerId);
-            statement.executeUpdate();
+        try (Connection connection = Database.getConnection()) {
+            updateCheckInStatus(connection, customerId, checkedIn);
         } catch (SQLException exception) {
             throw new IllegalStateException("Unable to update customer check-in status", exception);
         }
     }
 
-    public void updateCheckOutStatus(String customerId, boolean checkedOut) {
-        try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement("UPDATE customers SET checked_out = ?, checked_in = 0 WHERE customer_id = ?")) {
-            statement.setInt(1, checkedOut ? 1 : 0);
+    public int updateCheckInStatus(Connection connection, String customerId, boolean checkedIn) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE customers SET checked_in = ? WHERE customer_id = ?")) {
+            statement.setInt(1, checkedIn ? 1 : 0);
             statement.setString(2, customerId);
-            statement.executeUpdate();
+            return statement.executeUpdate();
+        }
+    }
+
+    public void updateCheckOutStatus(String customerId, boolean checkedOut) {
+        try (Connection connection = Database.getConnection()) {
+            updateCheckOutStatus(connection, customerId, checkedOut);
         } catch (SQLException exception) {
             throw new IllegalStateException("Unable to update customer check-out status", exception);
+        }
+    }
+
+    public int updateCheckOutStatus(Connection connection, String customerId, boolean checkedOut) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE customers SET checked_out = ?, checked_in = 0 WHERE customer_id = ?")) {
+            statement.setInt(1, checkedOut ? 1 : 0);
+            statement.setString(2, customerId);
+            return statement.executeUpdate();
         }
     }
 

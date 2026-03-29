@@ -25,7 +25,15 @@ public class BillRepository {
     }
 
     public Bill save(Bill bill) {
-        try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement("INSERT INTO bills(customer_id, customer_name, room_no, room_type, nights_bought, price_per_day, total_amount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = Database.getConnection()) {
+            return save(connection, bill);
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Unable to save bill", exception);
+        }
+    }
+
+    public Bill save(Connection connection, Bill bill) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO bills(customer_id, customer_name, room_no, room_type, nights_bought, price_per_day, total_amount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, bill.getCustomerId());
             statement.setString(2, bill.getCustomerName());
             statement.setInt(3, bill.getRoomNo());
@@ -51,8 +59,6 @@ public class BillRepository {
                     );
                 }
             }
-        } catch (SQLException exception) {
-            throw new IllegalStateException("Unable to save bill", exception);
         }
         return bill;
     }

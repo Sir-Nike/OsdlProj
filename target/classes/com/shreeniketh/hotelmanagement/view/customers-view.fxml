@@ -58,8 +58,8 @@
                 </GridPane>
                 <HBox spacing="10.0" styleClass="action-bar">
                     <children>
-                        <Button styleClass="primary-button" onAction="#createCustomer" text="Create Customer" />
-                        <Button onAction="#checkInCustomer" text="Check In" />
+                        <Button fx:id="createCustomerButton" styleClass="primary-button" onAction="#createCustomer" text="Create Customer" />
+                        <Button fx:id="checkInCustomerButton" onAction="#checkInCustomer" text="Check In" />
                         <Button onAction="#refreshCustomers" text="Refresh" />
                         <Button onAction="#refreshRoomOptions" text="Reload Rooms" />
                     </children>
